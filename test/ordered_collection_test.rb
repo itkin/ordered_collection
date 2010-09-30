@@ -19,4 +19,11 @@ class OrderedCollectionTest < ActiveSupport::TestCase
     assert_equal 1, users(:user_2).number
     assert_equal 3, users(:user_1).number
   end
+
+  def test_create
+    user = User.create('name' => 'user_4')
+    assert_equal 1, user.number
+    assert_equal 2, users('user_1').number
+    assert_equal 4, users('user_3').number
+  end
 end
