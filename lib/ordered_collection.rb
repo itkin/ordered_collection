@@ -7,7 +7,9 @@ module OrderedCollection
     self.before_save {|instance|
       instance.class.reorder_collection!(instance.changes[column]) if instance.reorder_collection and instance.changes[column]
     }
-
+    self.after_destroy {|instance|
+      instance.class.reorder_all!
+    }
     self.default_scope :order => "#{column} #{direction}"
     if direction.to_s.downcase == 'asc'
       self.after_validation_on_create { |instance| instance.send("#{column}=",1) }
@@ -21,6 +23,12 @@ module OrderedCollection
 
 
   module ClassMethods
+    def reorder_all!
+      all.each_with_index do |p,i|
+        p.reorder_collection= false
+        p.update_attribute(order_collection_column, i + 1)
+      end
+    end
     def reorder_collection!(changes)
       old_value = changes.first
       new_value= changes.last
