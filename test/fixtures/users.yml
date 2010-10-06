@@ -1,11 +1,14 @@
 user_1:
+  id: 1
   name: user_1
   number: 1
 
 user_2:
+  id: 2
   name: user_2
   number: 2
 
 user_3:
+  id: 3
   name: user_3
   number: 3

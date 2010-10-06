@@ -28,7 +28,7 @@ def load_schema
   ActiveRecord::Base.establish_connection(config[db_adapter])
   load(File.dirname(__FILE__) + "/fixtures/schema.rb")
   load(File.dirname(__FILE__) + "/fixtures/data_model.rb")
-#  debugger
+
   Fixtures.create_fixtures(File.expand_path('test/fixtures'), ActiveRecord::Base.connection.tables.select{|t| t!= "schema_migrations"})
 
 end

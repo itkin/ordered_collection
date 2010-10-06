@@ -1,30 +1,37 @@
 module OrderedCollection
 
-  def order_collection_by(column, direction="ASC")
+  def order_collection_by(column, direction="ASC", options={})
+    options.symbolize_keys!
     self.attr_accessor_with_default :reorder_collection, true
-    self.class_inheritable_accessor :order_collection_column
-    self.order_collection_column = column.to_s
+    self.class_inheritable_accessor :order_collection
+    self.order_collection = {
+        :column => column.to_s,
+        :direction => direction.to_s,
+        :parent => options[:parent]
+    }
+
     self.before_save {|instance|
-      instance.class.reorder_collection!(instance.changes[column]) if instance.reorder_collection and instance.changes[column]
+      instance.reorder_collection!(instance.changes[column]) if instance.reorder_collection and instance.changes[column]
     }
     self.after_destroy {|instance|
-      instance.class.reorder_all!
+      instance.reorder_all!
     }
-    self.default_scope :order => "#{column} #{direction}"
-    if direction.to_s.downcase == 'asc'
-      self.after_validation_on_create { |instance| instance.send("#{column}=",1) }
-    else
+    self.default_scope :order => "#{column} #{direction.to_s.upcase}"
+
+    if options[:new_instance].to_s == 'end'
       self.after_validation_on_create { |instance| instance.send("#{column}=", instance.class.count + 1) }
+    else
+      self.after_validation_on_create { |instance| instance.send("#{column}=",1) }
     end
 
-    send :extend, ClassMethods
+    self.send :include, InstanceMethods
   end
 
 
 
-  module ClassMethods
+  module InstanceMethods
     def reorder_all!
-      all.each_with_index do |p,i|
+      order_collection_where.each_with_index do |p,i|
         p.reorder_collection= false
         p.update_attribute(order_collection_column, i + 1)
       end
@@ -33,22 +40,33 @@ module OrderedCollection
       old_value = changes.first
       new_value= changes.last
       if old_value.nil?
-        all.each do |p|
+        order_collection_where.each do |p|
           p.reorder_collection= false
-          p.update_attribute(order_collection_column, p.number.to_i+1)
+          p.update_attribute(order_collection[:column], p.number.to_i+1)
         end
       elsif new_value > old_value
-        where(order_collection_column => (old_value+1..new_value)).each{|p|
+        order_collection_where(order_collection[:column] => (old_value+1..new_value)).each do |p|
           p.reorder_collection= false
-          p.update_attribute(order_collection_column, p.number.to_i-1)
-        }
+          p.update_attribute(order_collection[:column], p.number.to_i-1)
+        end
       else
-        where(order_collection_column => (new_value..old_value-1)).each{|p|
+        order_collection_where(order_collection_column => (new_value..old_value-1)).each do |p|
           p.reorder_collection= false
-          p.update_attribute(order_collection_column, p.number.to_i+1)
-        }
+          p.update_attribute(order_collection[:column], p.number.to_i+1)
+        end
       end
     end
+
+    def order_collection_where(condition=nil)
+      if self.class.order_collection[:parent]
+        association_foreign_key = self.class.reflections.fetch(self.class.order_collection[:parent]).association_foreign_key
+        scope = self.class.where({association_foreign_key => send(association_foreign_key)})
+      else
+        scope = self.class.where(nil)
+      end
+      scope.where(condition)
+    end
+
   end
 
 

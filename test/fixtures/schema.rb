@@ -4,4 +4,11 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string   "name"
     t.integer  "number"
   end
+
+  create_table "posts", :force => true do |t|
+    t.string   "title"
+    t.integer  "number"
+    t.integer  "user_id"
+  end
+
 end
