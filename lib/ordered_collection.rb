@@ -50,7 +50,7 @@ module OrderedCollection
           p.update_attribute(order_collection[:column], p.number.to_i-1)
         end
       else
-        order_collection_where(order_collection_column => (new_value..old_value-1)).each do |p|
+        order_collection_where(order_collection[:column] => (new_value..old_value-1)).each do |p|
           p.reorder_collection= false
           p.update_attribute(order_collection[:column], p.number.to_i+1)
         end
