@@ -19,9 +19,9 @@ module OrderedCollection
     self.default_scope :order => "#{column} #{direction.to_s.upcase}"
 
     if options[:new_instance].to_s == 'end'
-      self.after_validation_on_create { |instance| instance.send("#{column}=", instance.class.count + 1) }
+      self.after_validation_on_create { |instance| instance.send("#{column}=", instance.class.count + 1) unless send(column) }
     else
-      self.after_validation_on_create { |instance| instance.send("#{column}=",1) }
+      self.after_validation_on_create { |instance| instance.send("#{column}=",1) unless send(column) }
     end
 
     self.send :include, InstanceMethods
