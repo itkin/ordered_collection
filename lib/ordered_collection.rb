@@ -33,7 +33,7 @@ module OrderedCollection
     def reorder_all!
       order_collection_where.each_with_index do |p,i|
         p.reorder_collection= false
-        p.update_attribute(order_collection_column, i + 1)
+        p.update_attribute(order_collection[:column], i + 1)
       end
     end
     def reorder_collection!(changes)
