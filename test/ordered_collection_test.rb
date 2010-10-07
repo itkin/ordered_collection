@@ -12,6 +12,10 @@ class OrderedCollectionTest < ActiveSupport::TestCase
     Post.find_by_title(title)
   end
 
+  def interviews(title)
+    Interview.find_by_title(title)
+  end
+
 
   def test_structure
     assert_equal true,  User.new.reorder_collection
@@ -41,5 +45,22 @@ class OrderedCollectionTest < ActiveSupport::TestCase
     assert_equal 1, posts(:post_4).number
   end
 
+  def test_place_new_to_end_of_collection
+    assert interview =  users('user_1').interviews.create(:title => 'interview_5')
+    assert_equal 4, interview.number
+    assert_equal 1, interviews(:interview_1).number
+    assert_equal 2, interviews(:interview_2).number
+    assert_equal 3, interviews(:interview_3).number
+    assert_equal 1, interviews(:interview_4).number
+  end
+
+  def test_place_new_to_the_middle_of_collection
+    assert interview =  users('user_1').interviews.create(:title => 'interview_6', :number => 2)
+    assert_equal 2, interview.number
+    assert_equal 1, interviews(:interview_1).number
+    assert_equal 3, interviews(:interview_2).number
+    assert_equal 4, interviews(:interview_3).number
+    assert_equal 1, interviews(:interview_4).number
+  end
 
 end
