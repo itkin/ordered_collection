@@ -42,17 +42,17 @@ module OrderedCollection
       if old_value.nil?
         order_collection_where(["#{order_collection[:column]} >= ?", new_value]).each do |p|
           p.reorder_collection= false
-          p.update_attribute(order_collection[:column], p.number.to_i+1)
+          p.update_attribute(order_collection[:column], p.send(order_collection[:column]).to_i+1)
         end
       elsif new_value > old_value
         order_collection_where(order_collection[:column] => (old_value+1..new_value)).each do |p|
           p.reorder_collection= false
-          p.update_attribute(order_collection[:column], p.number.to_i-1)
+          p.update_attribute(order_collection[:column], p.send(order_collection[:column]).to_i-1)
         end
       else
         order_collection_where(order_collection[:column] => (new_value..old_value-1)).each do |p|
           p.reorder_collection= false
-          p.update_attribute(order_collection[:column], p.number.to_i+1)
+          p.update_attribute(order_collection[:column], p.send(order_collection[:column]).to_i+1)
         end
       end
     end
