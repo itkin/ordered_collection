@@ -1,7 +1,28 @@
 OrderedCollection
 =================
 
-Introduction goes here.
+An other plugin to order a collection of ar collections
+
+in your model :
+
+
+
+class Parent
+  has_many :childs
+  order_collection_by :position, :asc
+end
+
+class Child
+  belongs_to :parent
+  order_collection_by :position, :desc, :parent => :parent
+end
+
+Parent and childs get ordered.
+
+Children are ordered relatively to their common parent.
+
+
+
 
 
 Example
