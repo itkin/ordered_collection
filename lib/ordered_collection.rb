@@ -2,8 +2,14 @@ module OrderedCollection
 
   def order_collection_by(column, direction="ASC", options={})
     options.symbolize_keys!
-    self.attr_accessor_with_default :reorder_collection, true
-    self.class_inheritable_accessor :order_collection
+
+    attr_accessor :reorder_collection
+    define_method :reorder_collection do
+      @reorder_collection ||= true
+    end
+
+    self.class_attribute :order_collection
+
     self.order_collection = {
         :column => column.to_s,
         :direction => direction.to_s,
@@ -19,9 +25,9 @@ module OrderedCollection
     self.default_scope :order => "#{column} #{direction.to_s.upcase}"
 
     if options[:new_instance].to_s == 'end'
-      self.after_validation_on_create { |instance| instance.send("#{column}=", instance.order_collection_where.count + 1) unless send(column) }
+      self.after_create { |instance| instance.send("#{column}=", instance.order_collection_where.count + 1) unless send(column) }
     else
-      self.after_validation_on_create { |instance| instance.send("#{column}=", 1) unless send(column) }
+      self.after_create { |instance| instance.send("#{column}=", 1) unless send(column) }
     end
 
     self.send :include, InstanceMethods
