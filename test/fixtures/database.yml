@@ -13,8 +13,8 @@ postgresql:
   :database: constants_in_db
   :min_messages: ERROR
 
-mysql:
-  :adapter: mysql
+mysql2:
+  :adapter: mysql2
   :host: localhost
   :username: rails
   :password: rails

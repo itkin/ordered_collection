@@ -3,9 +3,12 @@ module OrderedCollection
   def order_collection_by(column, direction="ASC", options={})
     options.symbolize_keys!
 
-    attr_accessor :reorder_collection
+    define_method :reorder_collection= do |value|
+      @reorder_collection = value
+    end
+
     define_method :reorder_collection do
-      @reorder_collection ||= true
+      @reorder_collection.nil? ? true : @reorder_collection
     end
 
     self.class_attribute :order_collection
@@ -16,7 +19,7 @@ module OrderedCollection
         :parent => options[:parent]
     }
 
-    self.before_save {|instance|
+    self.before_save { |instance|
       instance.reorder_collection!(instance.changes[column]) if instance.reorder_collection and instance.changes[column]
     }
     self.after_destroy {|instance|
@@ -45,6 +48,7 @@ module OrderedCollection
     def reorder_collection!(changes)
       old_value = changes.first
       new_value= changes.last
+
       if old_value.nil?
         order_collection_where(["#{order_collection[:column]} >= ?", new_value]).each do |p|
           p.reorder_collection= false

@@ -23,7 +23,7 @@ end
 def load_schema
 
   config = YAML::load(IO.read(File.dirname(__FILE__) + '/fixtures/database.yml'))
-  db_adapter = 'mysql'
+  db_adapter = 'mysql2'
 
   ActiveRecord::Base.establish_connection(config[db_adapter])
   load(File.dirname(__FILE__) + "/fixtures/schema.rb")
